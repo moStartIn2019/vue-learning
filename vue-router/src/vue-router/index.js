@@ -19,8 +19,12 @@ export default class VueRouter {
         this.history = new H5history(this)
         break
     }
-
   }
+
+  match(location) { // 中间函数，用来调用matcher的match
+    return this.matcher.match(location)
+  }
+
   init(app) { // new vue app 指根实例
     // 如何初始化 先根据当前路径 显示到指定的组件,核心方法是history的transitionTo
     const history = this.history
@@ -28,9 +32,6 @@ export default class VueRouter {
       history.setupHashListener()
     }
     history.transitionTo(history.getCurrentLocation(), setupHashListener) // 后续要监听路径变化,一旦有变化，执行回调
-  }
-  match(location) { // 中间函数，用来调用matcher的match
-    return this.matcher.match(location)
   }
 }
 
