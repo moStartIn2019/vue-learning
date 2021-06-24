@@ -1,3 +1,4 @@
+import createRouteMap from "./create-route-map"
 export default function createMatcher(routes) {
   // 本方法返回match和addroutes
   // routes 为用户当前传入的配置
@@ -9,7 +10,8 @@ export default function createMatcher(routes) {
   }
 
   // 用来匹配的方法
-  function match() {
+  function match(location) {
+    // 找到当前的记录
 
   }
 

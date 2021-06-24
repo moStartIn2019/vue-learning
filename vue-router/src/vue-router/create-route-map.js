@@ -5,13 +5,20 @@ export default function createRouteMap(routes, oldPathList, oldPathMap) {
   routes.forEach(route => {
     addRouteRecord(route, pathList, pathMap)
   })
+  console.log(pathList)
+  console.log(pathMap)
+  return {
+    pathList,
+    pathMap
+  }
 }
 
 function addRouteRecord(route, pathList, pathMap, parent) {
   let path = parent ? `${parent.path}/${route.path}` : route.path
   let record = { // 记录
     path,
-    component: route.component
+    component: route.component,
+    parent
   }
   if (!pathMap[path]) { // 第一次没有就初始化
     pathList.push(path) // 将路径添加到pathList
