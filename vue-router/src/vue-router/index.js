@@ -26,12 +26,17 @@ export default class VueRouter {
   }
 
   init(app) { // new vue app 指根实例
-    // 如何初始化 先根据当前路径 显示到指定的组件,核心方法是history的transitionTo
+    // 如何初始化 先根据当前路径 显示到指定的组件, 核心方法是history的transitionTo
     const history = this.history
     const setupHashListener = () => { // 回调,执行history的setupHashHistory函数
-      history.setupHashListener()
+      history.setupHashHistory()
     }
     history.transitionTo(history.getCurrentLocation(), setupHashListener) // 后续要监听路径变化,一旦有变化，执行回调
+
+    history.listen((route) => {
+      // 因为在根实例上也就是app，设置了其_route（current）为响应式
+      app._route = route // 视图就可以刷新了
+    })
   }
 }
 

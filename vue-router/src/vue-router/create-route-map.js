@@ -5,8 +5,6 @@ export default function createRouteMap(routes, oldPathList, oldPathMap) {
   routes.forEach(route => {
     addRouteRecord(route, pathList, pathMap)
   })
-  console.log(pathList)
-  console.log(pathMap)
   return {
     pathList,
     pathMap
