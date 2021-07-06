@@ -129,7 +129,7 @@ class Compiler {
     // 把当前的节点元素，获取并放到内存中
     let fragment = this.node2Fragment(this.el);
 
-    // 把节点中的内容进行替换 {{ xxx }} => {{ }} data: xxx，需要compile方法来编译内存中的dom节点, => 1. v-xxx(查看元素节点是否有zv-的指令开头的), 2. {{ xxx }}(查看文本节点是否有花括号)
+    // 把节点中的内容进行替换 {{ xxx }} => {{ }} data: xxx，需要compile方法来编译内存中的dom节点, => 1. v-xxx(查看元素节点是否有v-的指令开头的), 2. {{ xxx }}(查看文本节点是否有花括号)
     // 编译模板，用数据编译
     this.compile(fragment);
     // 把内容再塞到页面中
