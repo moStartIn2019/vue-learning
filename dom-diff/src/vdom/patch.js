@@ -1,15 +1,20 @@
 /**
- * 
+ * render // 1.虚拟节点 => 真实节点 2.容器追加真实节点
  * @param {*} vnode 用户写的虚拟节点
  * @param {*} container 要渲染到哪个容器
  * @returns 
  */
-export function render(vnode, container) { // 1.虚拟节点 => 真实节点 2.容器追加真实节点
+export function render(vnode, container) {
   let ele = createDomElementFrom(vnode) // 通过这个方法可以将虚拟节点转化成真实的节点
   container.appendChild(ele)
 }
 
-function createDomElementFrom(vnode) { // 通过虚拟的对象，创建一个真实的dom元素
+/**
+ * createDomElementFrom // 通过虚拟的对象，创建一个真实的dom元素
+ * @param {*} vnode 
+ * @returns 
+ */
+function createDomElementFrom(vnode) {
   let { type, key, props, children, text } = vnode
   console.log(type, key, props, children, text)
     // 创建的真实节点并且给vnode对象再增加个属性domElement，且其值为刚创建的真实dom
@@ -29,6 +34,11 @@ function createDomElementFrom(vnode) { // 通过虚拟的对象，创建一个�
 // 在虚拟节点中比对，最后比对完再一起转成真实dom的属性
 // 后续比对的时候，会根据老的属性和新的属性，重新更新节点
 // oldProps需要dom-diff的时候传，oldProps默认首次渲染时是空对象
+/**
+ * updateProperties patch和render均用到，给元素节点更新属性用的
+ * @param {*} newVnode 新节点（第一次渲染的时候为原始节点）
+ * @param {*} oldProps 旧节点的属性
+ */
 function updateProperties(newVnode, oldProps = {}) {
   let domElement = newVnode.domElement // 真实的dom元素
   let newProps = newVnode.props // 当前虚拟节点中的属性
@@ -77,4 +87,50 @@ function updateProperties(newVnode, oldProps = {}) {
       domElement[propName] = newProps[propName]
     }
   }
+}
+
+/**
+ * patch 新旧节点比对更新，同层级比对（父与父，子与子）
+ * @param {*} oldVnode 旧节点
+ * @param {*} newVnode 新节点
+ * @returns 
+ */
+export function patch(oldVnode, newVnode) { // dom操作
+  // 类型不同
+  if (oldVnode.type !== newVnode.type) { // 新的vnode需要创建真实dom的映射
+    return oldVnode.domElement.parentNode.replaceChild(createDomElementFrom(newVnode), oldVnode.domElement)
+  }
+  // 类型相同，且是文本节点，直接覆盖
+  if (oldVnode.text) {
+    return oldVnode.domElement.textContent = newVnode.text
+  }
+
+  // 类型一样，并且是标签，需要根据新节点的属性，更新老节点的属性
+  let domElement = newVnode.domElement = oldVnode.domElement
+    // 更新
+  updateProperties(newVnode, oldVnode.props) // 根据最新的虚拟节点来更新属性，排除文本节点
+
+  // 对比新旧节点的子节点（同层级比对）
+  let oldChildren = oldVnode.children // 旧儿子节点
+  let newChildren = newVnode.children // 新儿子节点
+
+  // 1.旧的有儿子，新的没有
+  // 2.旧的有儿子，新的也有
+  // 3.旧的没有儿子，新的有(新增了儿子)
+
+  // 新旧都有儿子
+  if (oldChildren.length && newChildren.length) {
+    // 对比两个子节点，复杂
+    updateChildren(domElement, oldChildren, newChildren)
+  } else if (oldChildren.length) { // 旧的有，新的没有
+    domElement.innerHTML = '' // 直接清空
+  } else if (newChildren.length) { // 新的有，旧的没有
+    for (let i = 0; i < newChildren.length; i++) { // 将子节点的每个真实dom插入到父级的真实dom里
+      domElement.appendChild(createDomElementFrom(newChildren[i]))
+    }
+  }
+}
+
+function updateChildren(parent, oldChildren, newChildren) {
+  console.log(parent, oldChildren, newChildren)
 }

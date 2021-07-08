@@ -7,9 +7,18 @@
  *   mo
  * </div>
  */
-import { h, render } from './vdom'
+import { h, render, patch } from './vdom'
 // h方法就是将根据dom的类型 属性 孩子 产生一个虚拟dom
-const vnode = h('div', { id: 'wrapper', style: { background: 'red', width: '100px', height: '100px' } }, h('span', { style: { color: '#fff' }, key: 'xxx' }, 'hello'), 'mo')
+
+// 对常见的dom操作做优化
+// 1.前后追加
+// 2.正序和倒序
+const vnode = h('div', {},
+  h('li', { style: { background: 'red' }, key: 'A' }, 'A'),
+  h('li', { style: { background: 'green' }, key: 'B' }, 'B'),
+  h('li', { style: { background: 'blue' }, key: 'C' }, 'C'),
+  h('li', { style: { background: 'yellow' }, key: 'D' }, 'D')
+)
 
 // render
 // 将虚拟节点转化成真实的dom节点，最后插入到app元素中
@@ -22,3 +31,13 @@ render(vnode, window.app)
   //     { type: '', props: '', children: [] }
   //   ]
   // }
+const newVnode = h('div', {},
+  h('li', { style: { background: 'red' }, key: 'A' }, 'A'),
+  h('li', { style: { background: 'green' }, key: 'B' }, 'B'),
+  h('li', { style: { background: 'blue' }, key: 'C' }, 'C'),
+  h('li', { style: { background: 'yellow' }, key: 'D' }, 'D'),
+  h('li', { style: { background: 'blue' }, key: 'E' }, 'E'),
+)
+setTimeout(() => { // 虚拟dom之后，不需要手动操作dom
+  patch(vnode, newVnode)
+}, 2000)
