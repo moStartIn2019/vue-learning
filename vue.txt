@@ -1,0 +1,46 @@
+*dom-diff
+	patch方法生成DOM操作的描述对象 patch方法3种处理，
+	1类型不同，替换，
+	2类型相同，文本，复用文本节点替换textContent，
+	3类型相同，标签，diff开始 因为是类型相同的标签，本身复用，先更新一下属性，然后针对children进行diff 
+	针对children，又有3种情况，
+	旧的有儿子，新的没儿子，直接清空。
+	旧的没儿子，新的有儿子，直接添加 
+	都有儿子，开始diff 先把旧的队列的 key 和 index 进行映射。 
+	新旧开始结束的索引，先比较新旧开始，相同调用patch更新复用，索引向后移动 
+	如果新旧结束相同，也调用patch更新复用，索引前移动 
+	新开始和旧结束比较，新结束和旧开始比较，更新后通过insertBefore交换位置 
+	都不是的话，就从映射里用key找索引，找到了，说明这不是特殊情况，但可以复用，也更新属性，通过insertBefore移动位置 
+	如果没有从映射里找到，那就说明是新创建的了 
+	最后再进行一些细节处理，把多余的旧节点删除 
+	总结索引的作用：如果用index作为索引，框架是尽可能复用的原则，所以会错误的复用 
+	如果是非受控表单，则会出现值错误的复用的情况 如果不加key，当然会有警告，默认用index作为key，同样的道理
+
+*mvvm
+	Vue@2的依赖收集 编译的时候，会生成一个watcher，watcher会取一个老值，取值前将watcher放到Dep.target上，
+	在定义响应式的时候，每个值都有一个依赖数组，取值时触发getter，那就把这个watcher放到这个值的依赖中，当值变了就通知watcher更新
+
+	Vue@3的依赖收集 watchEffect方法，会首先执行一次回调，然后数据变了回调会再次执行 Proxy的get就是懒递归拦截对象，
+	set区分了对象的新增属性和修改属性 副作用函数被包装后先push到数组中，
+	然后执行，在执行过程中取值了，也就是被proxy的get捕获到，
+	然后给这个对象的这个key的依赖Set集合里放入副作用函数，当set的时候触发副作用执行
+
+*Vuex
+	Vuex 原理 首先时Vue.use，调用install函数， install函数里mixin生命周期 beforeCreate 在实例上挂载$store
+	state 其实就是放到了 new Vue 上，以保持响应式
+	mutations和actions类似发布订阅，同步异步只是认为区分，调用commit和dispatch方法时取出对应的回调执行
+	难点在modules，可以嵌套，递归处理，其他也没啥可说的了
+
+*Vue Router
+	Vue Router 原理 同样install方法里混入生命周期beforeCreate，
+	为每个实例添加$router 和$route 同时在根组件里初始化路由init方法，
+	在根组件上定义了一个响应式属性_route，内部通过改变这个值，组件就会刷新 
+	改变这个值根据不同的路由模式有不同的监听手段 
+	还注册了一些全局组件，比如router-view
+	因为vue的路由是集中配置，而且是树结构，父子路径需要拼接，扁平化存放 matcher负责匹配路径，
+	比如匹配到一个子路径，会根据parent向上找到所有的父路由，
+	将结果 放到路由的current属性上，这样在router-view组件中就能通过this.$router拿到这个匹配数组
+	然后是渲染，routerview是一个函数组件，这个组件有个标记，标记自己是routerview为true， 
+	渲染的时候怎么知道自己应该渲染哪一级的match呢？答案就是 向上查找这个标记，查找的层级越高，说明渲染的是子组件，有一个depth的概念
+
+ vue的mixin冲突，vue的nextTick实现原理
